@@ -1,0 +1,23 @@
+name: swipl KB Check
+
+on:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    container:
+      image: swipl:latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.ref || github.ref }}
+
+      - name: Load and check all KB files
+        run: |
+          set -e
+          for f in $(find kb -name '*.pl' 2>/dev/null | sort); do
+            echo "=== $f ==="
+            swipl -q -t halt -f "$f" 2>&1
+          done
+          echo "All KB files loaded without error."
